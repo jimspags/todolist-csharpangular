@@ -5,7 +5,7 @@ import { TodoService } from './services/todo-service/todo.service';
 import { Todo } from './models/todo-model';
 import { CommonModule } from '@angular/common';
 import { catchError } from 'rxjs';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { AddTodoModel } from './models/add-todo-model';
 import { NgToastModule, NgToastService } from 'ng-angular-popup';
 
@@ -26,13 +26,15 @@ import { NgToastModule, NgToastService } from 'ng-angular-popup';
 export class AppComponent implements OnInit {
   title = 'UI';
   todos: Todo[] = []; // List of todo
-  todo: AddTodoModel = new AddTodoModel(); // Todo to add
   showUpdateModal: boolean = false;
   todoToUpdate: Todo = new Todo();
+  isAddFormSubmitted: boolean = false;
 
-  /**
-   *
-   */
+  todoToAdd: any = {
+    title: '',
+    description: '',
+  };
+
   constructor(
     private todoService: TodoService,
     private toast: NgToastService
@@ -48,9 +50,17 @@ export class AppComponent implements OnInit {
       .pipe(
         catchError((error) => {
           if (error instanceof ErrorEvent) {
-            console.error(error);
+            this.toast.error({
+              detail: 'Error',
+              summary: error.message,
+              duration: 5000,
+            });
           } else {
-            console.error(error);
+            this.toast.error({
+              detail: 'Error',
+              summary: error.message,
+              duration: 5000,
+            });
           }
           return [];
         })
@@ -60,21 +70,28 @@ export class AppComponent implements OnInit {
       });
   }
 
-  addTodo() {
+  addTodo(newTodo: AddTodoModel) {
     this.todoService
-      .addTodo(this.todo)
+      .addTodo(newTodo)
       .pipe(
         catchError((error) => {
           if (error instanceof ErrorEvent) {
-            console.error(error);
+            this.toast.error({
+              detail: 'Error',
+              summary: error.message,
+              duration: 5000,
+            });
           } else {
-            console.error(error);
+            this.toast.error({
+              detail: 'Error',
+              summary: error.message,
+              duration: 5000,
+            });
           }
           return error;
         })
       )
       .subscribe((result: any) => {
-        console.log(result);
         this.getTodos();
 
         this.toast.success({
@@ -82,8 +99,6 @@ export class AppComponent implements OnInit {
           summary: 'Todo Added',
           duration: 5000,
         });
-
-        this.todo = new AddTodoModel();
       });
   }
 
@@ -111,24 +126,35 @@ export class AppComponent implements OnInit {
     this.todoToUpdate = todo;
   }
 
+  updateTodoStatus(todo: Todo) {
+    this.todoToUpdate = todo;
+    this.saveUpdateTodo();
+  }
+
   saveUpdateTodo() {
     this.todoService
       .updateTodo(this.todoToUpdate)
       .pipe(
         catchError((error) => {
           if (error instanceof ErrorEvent) {
-            console.error(error);
+            this.toast.error({
+              detail: 'Error',
+              summary: error.message,
+              duration: 5000,
+            });
           } else {
-            console.error(error);
+            this.toast.error({
+              detail: 'Error',
+              summary: error.message,
+              duration: 5000,
+            });
           }
 
           return error;
         })
       )
       .subscribe((result: any) => {
-        console.log(result);
-
-        this.toggleUpdateModal();
+        this.showUpdateModal = false;
 
         this.toast.success({
           detail: 'Success',
@@ -142,5 +168,24 @@ export class AppComponent implements OnInit {
 
   toggleUpdateModal() {
     this.showUpdateModal = !this.showUpdateModal;
+  }
+
+  onAddSubmit(form: NgForm) {
+    this.isAddFormSubmitted = true;
+
+    let newTodo = new AddTodoModel();
+    newTodo.title = this.todoToAdd.title;
+    newTodo.description = this.todoToAdd.description;
+
+    if (form.valid) {
+      this.addTodo(newTodo);
+
+      this.isAddFormSubmitted = false;
+
+      this.todoToAdd.title = '';
+      this.todoToAdd.description = '';
+
+      form.form.reset();
+    }
   }
 }

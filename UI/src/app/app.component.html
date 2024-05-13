@@ -2,33 +2,57 @@
   <h1 class="text-2xl font-bold mb-4">Todo List</h1>
 
   <!-- Todo Input -->
-  <form id="todo-form" class="mb-4">
+  <form id="todo-form" class="mb-4" novalidate #form="ngForm">
     <input
       type="text"
       id="title"
       class="w-full px-4 py-2 rounded-lg border border-gray-300"
       placeholder="Title"
-      [(ngModel)]="todo.title"
+      [(ngModel)]="todoToAdd.title"
+      #title="ngModel"
       name="title"
+      minlength="3"
+      required
     />
+    <div
+      *ngIf="title.invalid && (title.touched || title.dirty) || isAddFormSubmitted"
+      class="text-red-600"
+    >
+      <small *ngIf="title.errors?.['required']">This is required</small>
+      <small *ngIf="title.errors?.['minlength']">Min of 3 characters</small>
+    </div>
+
     <input
       type="text"
       id="description"
       class="mt-2 w-full px-4 py-2 rounded-lg border border-gray-300"
       placeholder="Description"
-      [(ngModel)]="todo.description"
+      [(ngModel)]="todoToAdd.description"
       name="description"
+      #description="ngModel"
+      minlength="3"
+      required
     />
+    <div
+      *ngIf="
+        description.invalid && (description.touched || description.dirty) || isAddFormSubmitted
+      "
+      class="text-red-600"
+    >
+      <small *ngIf="description.errors?.['required']">This is required</small>
+      <small *ngIf="description.errors?.['minlength']"
+        >Min of 3 characters</small
+      >
+    </div>
     <button
       type="submit"
       class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
-      (click)="addTodo()"
+      (click)="onAddSubmit(form)"
     >
       Add Todo
     </button>
   </form>
 
-  <!-- Todo Table -->
   <table class="w-full border-collapse border border-gray-300 table-auto">
     <thead>
       <tr class="bg-gray-200">
@@ -39,11 +63,21 @@
       </tr>
     </thead>
     <tbody id="todo-list">
-      <!-- Static data -->
       <tr *ngFor="let todo of todos">
         <td class="border px-4 py-2">{{ todo.title }}</td>
         <td class="border px-4 py-2">{{ todo.description }}</td>
-        <td class="border px-4 py-2">{{ todo.status }}</td>
+        <td class="border px-4 py-2">
+          <select
+          id="edit-status-dropdown"
+          class="w-full px-4 py-2 rounded-lg border border-gray-300"
+          [(ngModel)]="todo.status"
+          (change)="updateTodoStatus(todo)"
+          >
+            <option value="Todo">Todo</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </td>
         <td class="border px-4 py-2 flex">
           <button
             class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-blue-500 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
@@ -63,6 +97,7 @@
     </tbody>
   </table>
 </div>
+
 <div
   id="edit-modal"
   class="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center"
@@ -84,15 +119,6 @@
       placeholder="Description"
       [(ngModel)]="this.todoToUpdate.description"
     />
-    <select
-      id="edit-status-dropdown"
-      class="w-full px-4 py-2 rounded-lg border border-gray-300 mb-4"
-      [(ngModel)]="this.todoToUpdate.status"
-    >
-      <option value="Todo">Todo</option>
-      <option value="InProgress">InProgress</option>
-      <option value="Completed">Completed</option>
-    </select>
     <div class="flex justify-end">
       <label
         for="modal-toggle"
