@@ -8,6 +8,7 @@ import { catchError } from 'rxjs';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AddTodoModel } from './models/add-todo-model';
 import { NgToastModule, NgToastService } from 'ng-angular-popup';
+import { UpdateTodoModel } from './models/update-todo-model';
 
 @Component({
   selector: 'app-root',
@@ -27,13 +28,21 @@ export class AppComponent implements OnInit {
   title = 'UI';
   todos: Todo[] = []; // List of todo
   showUpdateModal: boolean = false;
-  todoToUpdate: Todo = new Todo();
+  
   isAddFormSubmitted: boolean = false;
+  isUpdateFormSubmitted: boolean = false;
 
   todoToAdd: any = {
     title: '',
     description: '',
   };
+
+  todoToUpdate: any = {
+    id: '',
+    title: '',
+    description: '',
+    status: ''
+  }
 
   constructor(
     private todoService: TodoService,
@@ -121,19 +130,22 @@ export class AppComponent implements OnInit {
       });
   }
 
-  updateTodo(todo: Todo) {
+  updateTodoTrigger(todo: Todo) { 
     this.toggleUpdateModal();
-    this.todoToUpdate = todo;
+
+    this.todoToUpdate.title = todo.title;
+    this.todoToUpdate.description = todo.description;
+    this.todoToUpdate.id = todo.id;
+    this.todoToUpdate.status = todo.status;
   }
 
   updateTodoStatus(todo: Todo) {
-    this.todoToUpdate = todo;
-    this.saveUpdateTodo();
+    this.updateTodo(todo);
   }
 
-  saveUpdateTodo() {
+  updateTodo(todo: UpdateTodoModel) {
     this.todoService
-      .updateTodo(this.todoToUpdate)
+      .updateTodo(todo)
       .pipe(
         catchError((error) => {
           if (error instanceof ErrorEvent) {
@@ -184,6 +196,30 @@ export class AppComponent implements OnInit {
 
       this.todoToAdd.title = '';
       this.todoToAdd.description = '';
+
+      form.form.reset();
+    }
+  }
+
+  onUpdateSubmit(form: NgForm) {
+    this.isUpdateFormSubmitted = true;
+
+    let updateTodo = new UpdateTodoModel();
+    
+    updateTodo.id = this.todoToUpdate.id;
+    updateTodo.title = this.todoToUpdate.title;
+    updateTodo.description = this.todoToUpdate.description;
+    updateTodo.status = this.todoToUpdate.status;
+
+    if (form.valid) {
+      this.updateTodo(updateTodo);
+
+      this.isUpdateFormSubmitted = false;
+
+      this.todoToUpdate.title = '';
+      this.todoToUpdate.description = '';
+      this.todoToUpdate.id = '';
+      this.todoToUpdate.status = '';
 
       form.form.reset();
     }
