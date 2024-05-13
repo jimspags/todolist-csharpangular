@@ -63,37 +63,45 @@
       </tr>
     </thead>
     <tbody id="todo-list">
-      <tr *ngFor="let todo of todos">
-        <td class="border px-4 py-2">{{ todo.title }}</td>
-        <td class="border px-4 py-2">{{ todo.description }}</td>
-        <td class="border px-4 py-2">
-          <select
-          id="edit-status-dropdown"
-          class="w-full px-2 py-2 rounded-lg border border-gray-300"
-          [(ngModel)]="todo.status"
-          (change)="updateTodoStatus(todo)"
-          >
-            <option value="Todo">Todo</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </td>
-        <td class="border px-4 py-2 flex">
-          <button
-            class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-blue-500 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
-            (click)="updateTodoTrigger(todo)"
-          >
-            Edit
-          </button>
-
-          <button
-            class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-red-500 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            (click)="deleteTodo(todo.id)"
-          >
-            Delete
-          </button>
-        </td>
-      </tr>
+      @if (todos == null || !todos.length)
+      {
+        <tr>
+          <td class="text-center" colspan="4">{{ todos == null ? "Loading.." : "No Todo" }}</td>
+        </tr>
+      }
+      @else {
+        <tr *ngFor="let todo of todos">
+          <td class="border px-4 py-2">{{ todo.title }}</td>
+          <td class="border px-4 py-2">{{ todo.description }}</td>
+          <td class="border px-4 py-2">
+            <select
+            id="edit-status-dropdown"
+            class="w-full px-2 py-2 rounded-lg border border-gray-300"
+            [(ngModel)]="todo.status"
+            (change)="updateTodoStatus(todo)"
+            >
+              <option value="Todo">Todo</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </td>
+          <td class="border px-4 py-2 flex">
+            <button
+              class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-blue-500 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2"
+              (click)="updateTodoTrigger(todo)"
+            >
+              Edit
+            </button>
+  
+            <button
+              class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-red-500 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              (click)="deleteTodoTrigger(todo.id)"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      }
     </tbody>
   </table>
 </div>
@@ -158,5 +166,31 @@
     </div>
   </form>
 </div>
+
+
+<div
+  id="delete-modal"
+  class="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center"
+  *ngIf="showDeleteModal"
+>
+  <div class="bg-white p-8 rounded-lg">
+    <p class="text-lg font-semibold mb-4">Are you sure you want to delete?</p>
+    <div class="flex justify-end">
+      <button
+        class="px-4 py-2 mr-2 bg-gray-400 text-white rounded-lg cursor-pointer"
+        (click)="toggleDeleteModal()"
+      >
+        No
+      </button>
+      <button
+        class="px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer"
+        (click)="deleteTodo(todoIdToDelete)"
+      >
+        Yes
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <ng-toast></ng-toast>
