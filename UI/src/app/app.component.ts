@@ -26,9 +26,9 @@ import { UpdateTodoModel } from './models/update-todo-model';
 })
 export class AppComponent implements OnInit {
   title = 'UI';
-  todos: Todo[] = []; // List of todo
+  todos: Todo[] | undefined; // List of todo
   showUpdateModal: boolean = false;
-  
+  showDeleteModal: boolean = false;
   isAddFormSubmitted: boolean = false;
   isUpdateFormSubmitted: boolean = false;
 
@@ -44,13 +44,16 @@ export class AppComponent implements OnInit {
     status: ''
   }
 
+  todoIdToDelete: string = '';
+
   constructor(
     private todoService: TodoService,
     private toast: NgToastService
   ) {}
 
   ngOnInit(): void {
-    this.getTodos();
+    // Add timeout to show loading state
+    setTimeout(() => this.getTodos(), 3000)   
   }
 
   getTodos() {
@@ -125,8 +128,13 @@ export class AppComponent implements OnInit {
         })
       )
       .subscribe((result: any) => {
-        console.log(result);
+        this.toast.success({
+          detail: "Success",
+          summary: "Todo Deleted",
+          duration: 5000
+        })
         this.getTodos();
+        this.toggleDeleteModal();
       });
   }
 
@@ -137,6 +145,11 @@ export class AppComponent implements OnInit {
     this.todoToUpdate.description = todo.description;
     this.todoToUpdate.id = todo.id;
     this.todoToUpdate.status = todo.status;
+  }
+
+  deleteTodoTrigger(id: string) {
+    this.toggleDeleteModal();
+    this.todoIdToDelete = id;
   }
 
   updateTodoStatus(todo: Todo) {
@@ -182,6 +195,10 @@ export class AppComponent implements OnInit {
     this.showUpdateModal = !this.showUpdateModal;
   }
 
+  toggleDeleteModal() {
+    this.showDeleteModal = !this.showDeleteModal;
+  }
+
   onAddSubmit(form: NgForm) {
     this.isAddFormSubmitted = true;
 
@@ -223,5 +240,9 @@ export class AppComponent implements OnInit {
 
       form.form.reset();
     }
+  }
+
+  onDeleteSubmit() {
+    this.deleteTodo(this.todoIdToDelete);
   }
 }
