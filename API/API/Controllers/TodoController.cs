@@ -58,10 +58,10 @@ namespace API.Controllers
 		public async Task<IActionResult> Update(Guid id, UpdateTodoDto todo)
 		{
 			// Check if the variable's value is defined in the TodoStatusEnum enum
-			if (!Enum.IsDefined(typeof(TodoStatusEnum), todo.Status))
-			{
-				return BadRequest("Invalid Todo Status");
-			}
+			//if (!Enum.IsDefined(typeof(TodoStatusEnum), todo.Status))
+			//{
+			//	return BadRequest("Invalid Todo Status");
+			//}
 
 			var getTodo = _dbContext.Todos.FirstOrDefault(x => x.Id == id);
 
